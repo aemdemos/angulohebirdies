@@ -513,7 +513,7 @@
       ]
     },
     {
-      "name": "Carousel",
+      "name": "Carousel (cluster-14)",
       "cluster": 14,
       "instances": [
         {
@@ -525,7 +525,7 @@
       ]
     },
     {
-      "name": "Carousel",
+      "name": "Carousel (cluster-15)",
       "cluster": 15,
       "instances": [
         {
@@ -537,7 +537,7 @@
       ]
     },
     {
-      "name": "Carousel",
+      "name": "Carousel (cluster-16)",
       "cluster": 16,
       "instances": [
         {
@@ -549,7 +549,7 @@
       ]
     },
     {
-      "name": "Cards",
+      "name": "Cards (cluster-17)",
       "cluster": 17,
       "instances": [
         {
@@ -561,7 +561,7 @@
       ]
     },
     {
-      "name": "Columns",
+      "name": "Columns (cluster-18)",
       "cluster": 18,
       "instances": [
         {
@@ -633,7 +633,7 @@
       ]
     },
     {
-      "name": "Columns",
+      "name": "Columns (cluster-24)",
       "cluster": 24,
       "instances": [
         {

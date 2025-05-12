@@ -285,7 +285,7 @@
       ]
     },
     {
-      "name": "Columns",
+      "name": "Header",
       "cluster": 2,
       "instances": [
         {

@@ -1,3 +1,4 @@
+
 .carousel .carousel-slides-container {
   position: relative;
 }
@@ -150,4 +151,105 @@
   .carousel .carousel-slide .carousel-slide-content[data-align='justify'] {
     --slide-content-width: auto;
   }
+}
+
+.carousel.cluster-15 .carousel-slides-container {
+  height: auto; /* Ensure adaptive height */
+  position: relative; /* Establish context for positioning elements */
+}
+
+.carousel.cluster-15 .carousel-navigation-buttons {
+  display: flex;
+  gap: 0; /* Remove excess spacing */
+  position: absolute;
+  top: 50%; /* Center vertically */
+  transform: translateY(-50%);
+  justify-content: space-between; /* Align buttons near edges */
+  width: 90%; /* Reduce width for closer proximity to content */
+  margin: 0 auto; /* Center within the container */
+}
+
+.carousel.cluster-15 .carousel-navigation-buttons button {
+  width: 32px; /* Slightly reduce button size */
+  height: 32px;
+  margin: 0;
+  border: 1px solid rgba(0, 0, 0, 0.6); /* Thin border for subtlety */
+  background-color: transparent;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s; /* Smooth interaction feedback */
+}
+
+.carousel.cluster-15 .carousel-navigation-buttons button:hover,
+.carousel.cluster-15 .carousel-navigation-buttons button:focus-visible {
+  border-color: rgba(0, 0, 0, 0.8); /* Darker feedback on hover/focus */
+}
+
+.carousel.cluster-15 .carousel-navigation-buttons button::after {
+  display: block;
+  content: '';
+  border: 2px solid rgba(0, 0, 0, 0.8); /* Adjust arrow contrast */
+  border-bottom: 0;
+  border-left: 0;
+  height: 14px;
+  width: 14px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-135deg);
+}
+
+.carousel.cluster-15 .carousel-navigation-buttons button.slide-next::after {
+  transform: translate(-50%, -50%) rotate(45deg); /* Correct arrow orientation */
+}
+
+.carousel.cluster-15 .carousel-slide {
+  position: relative;
+  overflow: hidden; /* Ensure clean visual boundaries */
+}
+
+.carousel.cluster-15 .carousel-slide .carousel-slide-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  max-width: 70%; /* Expand width for larger text display */
+  background-color: rgba(19, 19, 19, 0.5); /* Subtle overlay for visibility */
+  padding: 32px; /* Balanced padding for layout */
+  text-align: center;
+  border-radius: 0; /* Sharp corners for clean design */
+}
+
+.carousel.cluster-15 .carousel-slide-content h1,
+.carousel.cluster-15 .carousel-slide-content h2 {
+  font-size: 2.5em; /* Increase heading size for impact */
+  margin-bottom: 16px;
+}
+
+.carousel.cluster-15 .carousel-slide-content p {
+  font-size: 1.3em; /* Larger font for readability */
+  line-height: 1.8;
+  margin-bottom: 24px; /* Create visual separation */
+}
+
+.carousel.cluster-15 .carousel-slide-content .button-container {
+  text-align: center;
+}
+
+.carousel.cluster-15 .carousel-slide-content .button {
+  padding: 1em 2em; /* Larger button for emphasis */
+  font-size: 1.2em; /* Clear call-to-action */
+  margin-top: 24px; /* Adequate spacing below text */
+  border-radius: 2em; /* Rounded edges for modern styling */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Subtle depth for button */
+}
+
+.carousel.cluster-15 .carousel-slide .carousel-slide-image picture > img {
+  object-fit: cover; /* Ensure images fill space appropriately */
+  width: 100%;
+  height: 100%;
 }

@@ -3,6 +3,5 @@ Please always provide the [GitHub issue(s)](../issues) your PR is for, as well a
 Fix #<gh-issue-id>
 
 Test URLs:
-
 - Before: https://main--angulohebirdies--aemdemos.aem.live/
-- After: https://main--angulohebirdies--aemdemos.aem.live/
+- After: https://<branch>--angulohebirdies--aemdemos.aem.live/

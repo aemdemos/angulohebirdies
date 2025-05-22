@@ -1,21 +1,33 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-    // Dynamically extract content
-    const picture = element.querySelector('picture');
-    const heading = element.querySelector('h1');
+  // Define the header row consistent with the example
+  const headerRow = ['Hero (hero3)'];
 
-    // Validate and combine extracted content into a single cell
-    const combinedContent = document.createElement('div');
-    if (picture) combinedContent.appendChild(picture);
-    if (heading) combinedContent.appendChild(heading);
+  // Extract content dynamically from the element
+  const content = element.querySelector(':scope > div > div > div > div');
 
-    // Create the table structure
-    const cells = [
-        ['Hero'], // Header row with exact text
-        [combinedContent], // Single cell containing combined content (picture and heading)
-    ];
-    const block = WebImporter.DOMUtils.createTable(cells, document);
+  // Extract the image and heading from the content
+  const image = content.querySelector('picture img');
+  const heading = content.querySelector('h1');
 
-    // Replace the original element with the block table
-    element.replaceWith(block);
+  // Handle edge cases where elements might not exist
+  const imageElement = image ? image : document.createTextNode('');
+  const headingElement = heading ? heading : document.createTextNode('');
+
+  // Combine all content into a single cell
+  const combinedContent = document.createElement('div');
+  if (imageElement) combinedContent.appendChild(imageElement);
+  if (headingElement) combinedContent.appendChild(headingElement);
+
+  // Create the cells array for the table
+  const cells = [
+    headerRow, // Header row
+    [combinedContent], // Content row (single column)
+  ];
+
+  // Create the table using WebImporter.DOMUtils.createTable
+  const blockTable = WebImporter.DOMUtils.createTable(cells, document);
+
+  // Replace the original element with the new block table
+  element.replaceWith(blockTable);
 }

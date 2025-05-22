@@ -104,3 +104,98 @@ export function generateDocumentPath({ url }) {
     .replace(/[^a-z0-9/]/gm, '-');
   return WebImporter.FileUtils.sanitizePath(p);
 }
+
+export const TableBuilder = (originalFunc) => {
+  const original = originalFunc;
+
+  return {
+    build: (parserName) => (cells, document) => {
+      if (cells.length > 0 && Array.isArray(cells[0])) {
+        const current = cells[0][0];
+        // Handle Section Metadata specially
+        if (current?.toLowerCase().includes('section metadata')) {
+          const styleRow = cells.find((row) => row[0]?.toLowerCase() === 'style');
+          if (styleRow) {
+            if (styleRow.length > 1) {
+              const existingStyles = styleRow[1].split(',').map((s) => s.trim());
+              if (!existingStyles.includes(parserName)) {
+                existingStyles.push(parserName);
+                styleRow[1] = existingStyles.join(', ');
+              }
+            } else {
+              styleRow[1] = parserName;
+            }
+          } else {
+            cells.push(['style', parserName]);
+          }
+          return original(cells, document); // skip the rest
+        } else if (current?.toLowerCase().includes('metadata')) {
+          return original(cells, document); // skip the rest
+        }
+
+        const variantMatch = current.match(/\(([^)]+)\)/);
+        if (variantMatch) {
+          const existingVariants = variantMatch[1].split(',').map((v) => v.trim());
+          if (!existingVariants.includes(parserName)) {
+            existingVariants.push(parserName);
+          }
+          const baseName = current.replace(/\s*\([^)]+\)/, '').trim();
+          cells[0][0] = `${baseName} (${existingVariants.join(', ')})`;
+        } else {
+          cells[0][0] = `${current} (${parserName})`;
+        }
+      }
+
+      return original(cells, document);
+    },
+
+    restore: () => original,
+  };
+};
+
+function reduceInstances(instances) {
+  return instances.map(({ urlHash, xpath, uuid }) => ({
+    urlHash,
+    xpath,
+    uuid,
+  }));
+}
+
+/**
+ * Merges site-urls into inventory with an optimized format
+ * @param {Object} siteUrls - The contents of site-urls.json
+ * @param {Object} inventory - The contents of inventory.json
+ * @returns {Object} The merged inventory data in the new format
+ */
+export function mergeInventory(siteUrls, inventory, publishUrl) {
+  // Transform URLs array to remove source property
+  const urls = siteUrls.urls.map(({ url, targetPath, id }) => ({
+    url,
+    targetPath,
+    id,
+  }));
+
+  // Transform fragments to use simplified instance format
+  const fragments = inventory.fragments.map((fragment) => ({
+    ...fragment,
+    instances: reduceInstances(fragment.instances),
+  }));
+
+  // Transform blocks to use simplified instance format
+  const blocks = inventory.blocks.map((block) => ({
+    ...block,
+    instances: reduceInstances(block.instances),
+  }));
+
+  // Transform outliers to use simplified instance format
+  const outliers = reduceInstances(inventory.outliers);
+
+  return {
+    originUrl: siteUrls.originUrl,
+    publishUrl,
+    urls,
+    fragments,
+    blocks,
+    outliers,
+  };
+}

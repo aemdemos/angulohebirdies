@@ -1,50 +1,27 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Extract Header Row
-  const headerRow = ['Columns'];
+  // Define the header row with exact match
+  const headerRow = ['Columns (columns2)'];
 
-  // Extract Content Row
-  const columnCells = [];
+  // Extract content dynamically from the element
+  const navBrand = element.querySelector('.nav-brand');
+  const navSections = element.querySelector('.nav-sections');
+  const navTools = element.querySelector('.nav-tools');
 
-  const list = element.querySelector('.nav-sections ul');
-  if (list) {
-    const listItems = Array.from(list.querySelectorAll('li')).map((item) => item.textContent.trim());
-    const listElement = document.createElement('ul');
-    listItems.forEach((text) => {
-      const li = document.createElement('li');
-      li.textContent = text;
-      listElement.appendChild(li);
-    });
-    columnCells.push(listElement);
-  } else {
-    columnCells.push(''); // Handle empty list edge case
-  }
+  // Ensure all extracted elements are valid (not null)
+  const navBrandContent = navBrand ? navBrand : document.createTextNode('');
+  const navSectionsContent = navSections ? navSections : document.createTextNode('');
+  const navToolsContent = navTools ? navTools : document.createTextNode('');
 
-  const brandImage = element.querySelector('.nav-brand img');
-  if (brandImage) {
-    const imgElement = document.createElement('img');
-    imgElement.src = brandImage.src;
-    imgElement.alt = brandImage.alt;
-    columnCells.push(imgElement);
-  } else {
-    columnCells.push(''); // Handle missing image edge case
-  }
+  // Build rows dynamically (header and content rows)
+  const rows = [
+    headerRow, // Header row as specified
+    [navBrandContent, navSectionsContent, navToolsContent], // Content row
+  ];
 
-  const donateButton = element.querySelector('.nav-tools .button-container a');
-  if (donateButton) {
-    const anchorElement = document.createElement('a');
-    anchorElement.href = donateButton.href;
-    anchorElement.textContent = donateButton.textContent.trim();
-    columnCells.push(anchorElement);
-  } else {
-    columnCells.push(''); // Handle missing button edge case
-  }
-
-  const rows = [headerRow, columnCells]; // Ensure content is distributed across multiple columns
-
-  // Create the table
+  // Create the block table using the WebImporter.DOMUtils helper function
   const table = WebImporter.DOMUtils.createTable(rows, document);
 
-  // Replace the original element with the block table
+  // Replace the original element with the new table
   element.replaceWith(table);
 }

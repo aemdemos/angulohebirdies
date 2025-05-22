@@ -1,54 +1,35 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  const createTable = WebImporter.DOMUtils.createTable;
+  // Ensure the header row matches the example markdown structure
+  const headerRow = ['Columns (columns5)'];
 
-  // Extract content and organize into tables dynamically
-  const cells = [
-    ['Columns'],
-    [
-      (() => {
-        const description = document.createElement('p');
-        description.innerHTML = '<ul><li>One</li><li>Two</li><li>Three</li></ul>';
-        return description;
-      })(),
-      (() => {
-        const liveLink = element.querySelector('a[href="https://word-edit.officeapps.live.com/"]');
-        const link = document.createElement('a');
-        link.href = liveLink?.href || 'https://word-edit.officeapps.live.com/';
-        link.textContent = liveLink?.textContent || 'Live';
-        return link;
-      })(),
-    ],
-    [
-      (() => {
-        const image1 = element.querySelector('img[src="https://main--sta-boilerplate--aemdemos.hlx.page/media_193050d52a802830d970fde49644ae9a504a61b7f.png#width=750&height=500"]');
-        const img = document.createElement('img');
-        img.src = image1?.src || 'https://main--sta-boilerplate--aemdemos.hlx.page/media_193050d52a802830d970fde49644ae9a504a61b7f.png#width=750&height=500';
-        img.alt = image1?.alt || 'Green Double Helix';
-        return img;
-      })(),
-      'Or you can just view the preview',
-    ],
-    [
-      (() => {
-        const image2 = element.querySelector('img[src="https://main--sta-boilerplate--aemdemos.hlx.page/media_1e562f39bbce4d269e279cbbf8c5674a399fe0070.png#width=644&height=470"]');
-        const img = document.createElement('img');
-        img.src = image2?.src || 'https://main--sta-boilerplate--aemdemos.hlx.page/media_1e562f39bbce4d269e279cbbf8c5674a399fe0070.png#width=644&height=470';
-        img.alt = image2?.alt || 'Yellow Double Helix';
-        return img;
-      })(),
-      (() => {
-        const previewLink = element.querySelector('a[href="https://word-edit.officeapps.live.com/"]');
-        const link = document.createElement('a');
-        link.href = previewLink?.href || 'https://word-edit.officeapps.live.com/';
-        link.textContent = previewLink?.textContent || 'Preview';
-        return link;
-      })(),
-    ],
-  ];
+  // Extract all columns from the provided element dynamically
+  const rows = Array.from(element.querySelectorAll(':scope > div')).map(col => {
+    // Extract the picture element
+    const picture = col.querySelector('picture');
+    const img = picture ? picture.querySelector('img') : null;
 
-  const table = createTable(cells, document);
+    // Handle missing picture edge case
+    const imageElement = img ? picture : document.createElement('div');
+    if (!img) imageElement.textContent = 'No Image Available';
 
-  // Replace the original element
+    // Extract the content (text description and links) element
+    const contentDiv = col.querySelector('div:nth-of-type(2)');
+
+    // Handle missing content edge case
+    const contentElement = contentDiv ? contentDiv : document.createElement('div');
+    if (!contentDiv) contentElement.textContent = 'No Content Available';
+
+    // Return array for this column
+    return [imageElement, contentElement];
+  });
+
+  // Create table array dynamically
+  const cells = [headerRow, ...rows];
+
+  // Generate the table using WebImporter.DOMUtils.createTable
+  const table = WebImporter.DOMUtils.createTable(cells, document);
+
+  // Replace the original element with the new structured table
   element.replaceWith(table);
 }

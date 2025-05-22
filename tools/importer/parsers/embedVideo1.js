@@ -1,34 +1,36 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Create an HR element for section break
-  const hr = document.createElement('hr');
+  const headerRow = ['Embed (embedVideo1)'];
 
-  // Extract the footer image
-  const imageElement = element.querySelector('picture img');
-  const image = imageElement ? imageElement.cloneNode(true) : null;
+  // Extract image from the <picture> tag
+  const picture = element.querySelector(':scope > div > div > p > picture');
+  const image = picture ? picture.querySelector('img') : null;
 
-  // Extract the email contact
-  const emailElement = element.querySelector('a[href^="mailto:"]');
-  const email = emailElement ? emailElement.cloneNode(true) : null;
+  // Extract links with meaningful text content and format them as list items
+  const linkElements = Array.from(
+    element.querySelectorAll(':scope > div > div > ul > li > a')
+  ).map(link => {
+    const href = link.getAttribute('href');
+    const text = link.textContent.trim();
+    if (href && text) {
+      const anchor = document.createElement('a');
+      anchor.setAttribute('href', href);
+      anchor.textContent = text;
+      const listItem = document.createElement('li');
+      listItem.appendChild(anchor);
+      return listItem;
+    }
+    return null;
+  }).filter(link => link);
 
-  // Extract the copyright text
-  const copyrightElement = element.querySelector('p');
-  const copyrightText = copyrightElement ? copyrightElement.textContent.trim() : null;
+  const linksList = document.createElement('ul');
+  linksList.append(...linkElements);
 
-  // Extract the links
-  const linkItems = element.querySelectorAll('ul li a');
-  const links = Array.from(linkItems).map(link => link.cloneNode(true));
+  // Create the table content row with properly formatted links list
+  const contentRow = [image, linksList];
 
-  // Prepare the data for the table
-  const cells = [['Footer']]; // Ensure header matches example structure
+  const cells = [headerRow, contentRow];
 
-  if (image) cells.push([image]);
-  if (email) cells.push([email]);
-  if (copyrightText) cells.push([copyrightText]);
-  if (links.length) links.forEach(link => cells.push([link]));
-
-  const table = WebImporter.DOMUtils.createTable(cells, document);
-
-  // Replace element with new content
-  element.replaceWith(hr, table);
+  const block = WebImporter.DOMUtils.createTable(cells, document);
+  element.replaceWith(block);
 }

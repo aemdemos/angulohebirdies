@@ -11,17 +11,18 @@
  */
 /* global WebImporter */
 /* eslint-disable no-console */
-import columns15Parser from './parsers/columns15.js';
-import columns17Parser from './parsers/columns17.js';
-import carousel13Parser from './parsers/carousel13.js';
-import columns4Parser from './parsers/columns4.js';
-import columns11Parser from './parsers/columns11.js';
-import hero5Parser from './parsers/hero5.js';
-import cards21Parser from './parsers/cards21.js';
-import columns10Parser from './parsers/columns10.js';
+import hero9Parser from './parsers/hero9.js';
+import cards7Parser from './parsers/cards7.js';
+import cardsNoImages8Parser from './parsers/cardsNoImages8.js';
+import cards12Parser from './parsers/cards12.js';
+import hero4Parser from './parsers/hero4.js';
 import hero2Parser from './parsers/hero2.js';
-import columns19Parser from './parsers/columns19.js';
-import carousel14Parser from './parsers/carousel14.js';
+import columns3Parser from './parsers/columns3.js';
+import columns11Parser from './parsers/columns11.js';
+import embedVideo1Parser from './parsers/embedVideo1.js';
+import columns10Parser from './parsers/columns10.js';
+import columns5Parser from './parsers/columns5.js';
+import columns6Parser from './parsers/columns6.js';
 import headerParser from './parsers/header.js';
 import metadataParser from './parsers/metadata.js';
 import cleanupTransformer from './transformers/cleanup.js';
@@ -37,17 +38,18 @@ import {
 
 const parsers = {
   metadata: metadataParser,
-  columns15: columns15Parser,
-  columns17: columns17Parser,
-  carousel13: carousel13Parser,
-  columns4: columns4Parser,
-  columns11: columns11Parser,
-  hero5: hero5Parser,
-  cards21: cards21Parser,
-  columns10: columns10Parser,
+  hero9: hero9Parser,
+  cards7: cards7Parser,
+  cardsNoImages8: cardsNoImages8Parser,
+  cards12: cards12Parser,
+  hero4: hero4Parser,
   hero2: hero2Parser,
-  columns19: columns19Parser,
-  carousel14: carousel14Parser,
+  columns3: columns3Parser,
+  columns11: columns11Parser,
+  embedVideo1: embedVideo1Parser,
+  columns10: columns10Parser,
+  columns5: columns5Parser,
+  columns6: columns6Parser,
 };
 
 const transformers = {

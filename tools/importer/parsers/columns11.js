@@ -1,47 +1,73 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Define the header row exactly as specified in the example
+  // Define the header row based on the block name
   const headerRow = ['Columns (columns11)'];
 
-  // Extract immediate child elements of the block
-  const childElements = Array.from(element.querySelectorAll(':scope > div'));
+  // Initialize rows array
+  const rows = [];
 
-  // Map child elements into rows
-  const rows = childElements.map((child) => {
-    // Extract text content from the second child div
-    const contentElement = child.querySelector(':scope > div:nth-child(2)');
-    const textContent = contentElement
-      ? Array.from(contentElement.childNodes).filter(
-          (node) => node.nodeType === 1 || (node.nodeType === 3 && node.textContent.trim())
-        )
-      : document.createTextNode('');
+  // Extract main content from the section
+  const contentWrapper = element.querySelector('.default-content-wrapper');
+  if (contentWrapper) {
+    const contentCells = [];
 
-    // Extract image from the first child div
-    const imgElement = child.querySelector(':scope > div:nth-child(1) img');
-    const image = imgElement || null;
+    // Extract paragraphs and links
+    const paragraphs = Array.from(contentWrapper.querySelectorAll('p'));
+    paragraphs.forEach((p) => {
+      const paragraphContent = [p];
 
-    // Handle elements with 'src' attributes that are not images
-    const srcElement = child.querySelector(':scope > div:nth-child(1)');
-    if (srcElement && srcElement.tagName !== 'IMG' && srcElement.hasAttribute('src')) {
-      const link = document.createElement('a');
-      link.href = srcElement.getAttribute('src');
-      link.textContent = srcElement.getAttribute('src');
-      return [link, textContent];
-    }
+      // Extract links within the paragraph
+      const links = Array.from(p.querySelectorAll('a')).map((link) => {
+        const anchor = document.createElement('a');
+        anchor.href = link.href;
+        anchor.textContent = link.textContent;
+        return anchor;
+      });
 
-    // Return image and text content as separate cells in the row
-    return [image, textContent];
-  });
+      paragraphContent.push(...links);
+      contentCells.push(paragraphContent);
+    });
 
-  // Construct the table cells array
-  const cells = [
-    headerRow,
-    ...rows
-  ];
+    rows.push(contentCells);
+  }
 
-  // Generate the block table using WebImporter.DOMUtils.createTable()
-  const blockTable = WebImporter.DOMUtils.createTable(cells, document);
+  // Extract cards content
+  const cardsWrapper = element.querySelector('.cards-wrapper');
+  if (cardsWrapper) {
+    const cardCells = [];
 
-  // Replace the original element with the new block table
+    const cards = Array.from(cardsWrapper.querySelectorAll('.cards-card-image, .cards-card-body'));
+    cards.forEach((card) => {
+      if (card.classList.contains('cards-card-image')) {
+        // Handle images within cards
+        const img = card.querySelector('img');
+        if (img) {
+          cardCells.push(img);
+        }
+      } else if (card.classList.contains('cards-card-body')) {
+        // Handle card body text
+        const strongTag = card.querySelector('strong');
+        if (strongTag) {
+          const link = strongTag.querySelector('a');
+          if (link) {
+            const anchor = document.createElement('a');
+            anchor.href = link.href;
+            anchor.textContent = link.textContent;
+            cardCells.push(anchor);
+          }
+        }
+      }
+    });
+
+    rows.push(cardCells);
+  }
+
+  // Create table data by combining header and rows
+  const tableData = [headerRow, ...rows];
+
+  // Create the table block
+  const blockTable = WebImporter.DOMUtils.createTable(tableData, document);
+
+  // Replace original element with the block table
   element.replaceWith(blockTable);
 }

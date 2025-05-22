@@ -1,35 +1,27 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Ensure the header row matches the example markdown structure
   const headerRow = ['Columns (columns5)'];
 
-  // Extract all columns from the provided element dynamically
-  const rows = Array.from(element.querySelectorAll(':scope > div')).map(col => {
-    // Extract the picture element
-    const picture = col.querySelector('picture');
-    const img = picture ? picture.querySelector('img') : null;
+  // Collect immediate children of the element for processing
+  const childElements = Array.from(element.querySelectorAll(':scope > div, :scope > p, :scope > ul'));
 
-    // Handle missing picture edge case
-    const imageElement = img ? picture : document.createElement('div');
-    if (!img) imageElement.textContent = 'No Image Available';
-
-    // Extract the content (text description and links) element
-    const contentDiv = col.querySelector('div:nth-of-type(2)');
-
-    // Handle missing content edge case
-    const contentElement = contentDiv ? contentDiv : document.createElement('div');
-    if (!contentDiv) contentElement.textContent = 'No Content Available';
-
-    // Return array for this column
-    return [imageElement, contentElement];
+  // Process the content in a structured way
+  const contentRows = childElements.map((child) => {
+    // Handle images, text, and lists
+    if (child.querySelector('img')) {
+      return [child.querySelector('img')];
+    } else if (child.querySelector('ul')) {
+      return [child.querySelector('ul')];
+    } else {
+      return [child];
+    }
   });
 
-  // Create table array dynamically
-  const cells = [headerRow, ...rows];
+  // Create the table using WebImporter.DOMUtils.createTable
+  const table = WebImporter.DOMUtils.createTable([headerRow, ...contentRows], document);
 
-  // Generate the table using WebImporter.DOMUtils.createTable
-  const table = WebImporter.DOMUtils.createTable(cells, document);
-
-  // Replace the original element with the new structured table
+  // Replace the original element with the new table
   element.replaceWith(table);
+
+  return table;
 }

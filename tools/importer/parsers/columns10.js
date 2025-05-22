@@ -1,63 +1,38 @@
 /* global WebImporter */
+
 export default function parse(element, { document }) {
-  const headerRow = ['Columns (columns10)'];
+  // Header Row
+  const headerRow = [document.createElement('strong')];
+  headerRow[0].textContent = 'Columns';
 
-  const contentRows = [];
+  // Define cells for the table
+  const cells = [headerRow];
 
-  // Check if element has required content
-  if (!element || !element.querySelector(':scope > div')) {
-    console.error('Missing required elements in the source HTML');
-    return;
-  }
+  // Extracting all child divs of the main block
+  const children = Array.from(element.querySelectorAll(':scope > div:not(.carousel-buttons)'));
 
-  // Extract immediate children of the element
-  const immediateChildren = element.querySelectorAll(':scope > div');
+  children.forEach((child) => {
+    const images = Array.from(child.querySelectorAll('picture')); // Extract <picture> tags
+    const textContent = child.textContent.trim(); // Extract text content
 
-  immediateChildren.forEach((child) => {
-    const cells = [];
-
-    // Extract images
-    const images = Array.from(child.querySelectorAll('img'));
-    if (images.length > 0) {
-      cells.push(images);
+    // Combine images and text into a single cell
+    const cellContent = [];
+    if (images.length) {
+      cellContent.push(...images);
+    }
+    if (textContent) {
+      const textElement = document.createElement('div');
+      textElement.textContent = textContent;
+      cellContent.push(textElement);
     }
 
-    // Extract text content
-    const textElements = Array.from(child.querySelectorAll('h2, h3, p, ul'));
-    if (textElements.length > 0) {
-      cells.push(textElements);
-    }
-
-    // Extract links
-    const links = Array.from(child.querySelectorAll('a')).map(link => {
-      const anchor = document.createElement('a');
-      anchor.href = link.href;
-      anchor.textContent = link.textContent;
-      return anchor;
-    });
-
-    if (links.length > 0) {
-      cells.push(links);
-    }
-
-    // Add row if content exists
-    if (cells.length > 0) {
-      contentRows.push(cells);
-    }
+    // Add the cell content as a row
+    cells.push([cellContent]);
   });
 
-  // Check if content rows are populated
-  if (contentRows.length === 0) {
-    console.error('No content extracted from the source HTML');
-    return;
-  }
+  // Create the table block
+  const tableBlock = WebImporter.DOMUtils.createTable(cells, document);
 
-  const tableArray = [
-    headerRow,
-    ...contentRows
-  ];
-
-  const blockTable = WebImporter.DOMUtils.createTable(tableArray, document);
-
-  element.replaceWith(blockTable);
+  // Replace the original element with the new table block
+  element.replaceWith(tableBlock);
 }

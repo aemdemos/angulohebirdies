@@ -11,18 +11,17 @@
  */
 /* global WebImporter */
 /* eslint-disable no-console */
-import carousel8Parser from './parsers/carousel8.js';
-import hero3Parser from './parsers/hero3.js';
-import cards7Parser from './parsers/cards7.js';
-import columns12Parser from './parsers/columns12.js';
-import columns5Parser from './parsers/columns5.js';
-import hero4Parser from './parsers/hero4.js';
-import columns2Parser from './parsers/columns2.js';
+import columns15Parser from './parsers/columns15.js';
+import columns17Parser from './parsers/columns17.js';
+import carousel13Parser from './parsers/carousel13.js';
+import columns4Parser from './parsers/columns4.js';
+import columns11Parser from './parsers/columns11.js';
+import hero5Parser from './parsers/hero5.js';
+import cards21Parser from './parsers/cards21.js';
 import columns10Parser from './parsers/columns10.js';
-import cards11Parser from './parsers/cards11.js';
-import carousel9Parser from './parsers/carousel9.js';
-import columns6Parser from './parsers/columns6.js';
-import columns1Parser from './parsers/columns1.js';
+import hero2Parser from './parsers/hero2.js';
+import columns19Parser from './parsers/columns19.js';
+import carousel14Parser from './parsers/carousel14.js';
 import headerParser from './parsers/header.js';
 import metadataParser from './parsers/metadata.js';
 import cleanupTransformer from './transformers/cleanup.js';
@@ -38,18 +37,17 @@ import {
 
 const parsers = {
   metadata: metadataParser,
-  carousel8: carousel8Parser,
-  hero3: hero3Parser,
-  cards7: cards7Parser,
-  columns12: columns12Parser,
-  columns5: columns5Parser,
-  hero4: hero4Parser,
-  columns2: columns2Parser,
+  columns15: columns15Parser,
+  columns17: columns17Parser,
+  carousel13: carousel13Parser,
+  columns4: columns4Parser,
+  columns11: columns11Parser,
+  hero5: hero5Parser,
+  cards21: cards21Parser,
   columns10: columns10Parser,
-  cards11: cards11Parser,
-  carousel9: carousel9Parser,
-  columns6: columns6Parser,
-  columns1: columns1Parser,
+  hero2: hero2Parser,
+  columns19: columns19Parser,
+  carousel14: carousel14Parser,
 };
 
 const transformers = {

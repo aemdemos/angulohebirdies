@@ -1,76 +1,63 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Validate that the required elements are in the source HTML
-  if (!element) {
-    throw new Error('Missing required element in the source HTML');
-  }
-
-  // Define the header row
   const headerRow = ['Columns (columns10)'];
 
-  // Extract content dynamically from default wrapper
-  const contentWrapper = element.querySelector(':scope > .default-content-wrapper');
-  const contentElements = [];
+  const contentRows = [];
 
-  if (contentWrapper) {
-    const heading = contentWrapper.querySelector('h2');
-    const paragraphs = contentWrapper.querySelectorAll('p');
+  // Check if element has required content
+  if (!element || !element.querySelector(':scope > div')) {
+    console.error('Missing required elements in the source HTML');
+    return;
+  }
 
-    if (heading) {
-      contentElements.push(heading);
+  // Extract immediate children of the element
+  const immediateChildren = element.querySelectorAll(':scope > div');
+
+  immediateChildren.forEach((child) => {
+    const cells = [];
+
+    // Extract images
+    const images = Array.from(child.querySelectorAll('img'));
+    if (images.length > 0) {
+      cells.push(images);
     }
 
-    paragraphs.forEach((p) => {
-      contentElements.push(p);
+    // Extract text content
+    const textElements = Array.from(child.querySelectorAll('h2, h3, p, ul'));
+    if (textElements.length > 0) {
+      cells.push(textElements);
+    }
+
+    // Extract links
+    const links = Array.from(child.querySelectorAll('a')).map(link => {
+      const anchor = document.createElement('a');
+      anchor.href = link.href;
+      anchor.textContent = link.textContent;
+      return anchor;
     });
-  }
 
-  // Extract cards dynamically
-  const cardsWrapper = element.querySelector(':scope > .cards-wrapper');
-  const cardRows = [];
-
-  if (cardsWrapper) {
-    const cardsBlock = cardsWrapper.querySelector(':scope > .cards');
-    if (cardsBlock) {
-      const cards = cardsBlock.querySelectorAll(':scope > ul > li');
-      cards.forEach((card) => {
-        const cardContent = [];
-
-        const image = card.querySelector(':scope .cards-card-image img');
-        if (image) {
-          cardContent.push(image);
-        }
-
-        const text = card.querySelector(':scope .cards-card-body strong');
-        if (text) {
-          cardContent.push(text);
-        }
-
-        const link = card.querySelector(':scope .callout-overlay a');
-        if (link) {
-          const linkElement = document.createElement('a');
-          linkElement.href = link.href;
-          linkElement.textContent = link.textContent;
-          cardContent.push(linkElement);
-        }
-
-        if (cardContent.length > 0) {
-          cardRows.push(cardContent);
-        }
-      });
+    if (links.length > 0) {
+      cells.push(links);
     }
+
+    // Add row if content exists
+    if (cells.length > 0) {
+      contentRows.push(cells);
+    }
+  });
+
+  // Check if content rows are populated
+  if (contentRows.length === 0) {
+    console.error('No content extracted from the source HTML');
+    return;
   }
 
-  // Combine header row and content
-  const rows = [
+  const tableArray = [
     headerRow,
-    ...(contentElements.length > 0 ? [contentElements] : []),
-    ...cardRows
+    ...contentRows
   ];
 
-  // Create the block table
-  const blockTable = WebImporter.DOMUtils.createTable(rows, document);
+  const blockTable = WebImporter.DOMUtils.createTable(tableArray, document);
 
-  // Replace the original element with the new block table
   element.replaceWith(blockTable);
 }

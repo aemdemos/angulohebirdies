@@ -1,53 +1,47 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Validate the example Markdown structure
-  const exampleMarkdownIncludesSectionMetadata = false; // Derived from the example Markdown structure
+  // Define the header row exactly as specified in the example
+  const headerRow = ['Columns (columns11)'];
 
-  // Create header row
-  const headerRow = ['Columns'];
+  // Extract immediate child elements of the block
+  const childElements = Array.from(element.querySelectorAll(':scope > div'));
 
-  // Extract content for the first column
-  const column1Content = [];
-  const listItems = Array.from(element.querySelectorAll('.nav-sections ul li a'));
-  const button = element.querySelector('.nav-tools a');
+  // Map child elements into rows
+  const rows = childElements.map((child) => {
+    // Extract text content from the second child div
+    const contentElement = child.querySelector(':scope > div:nth-child(2)');
+    const textContent = contentElement
+      ? Array.from(contentElement.childNodes).filter(
+          (node) => node.nodeType === 1 || (node.nodeType === 3 && node.textContent.trim())
+        )
+      : document.createTextNode('');
 
-  if (listItems.length) {
-    const list = document.createElement('ul');
-    listItems.forEach((item) => {
-      const listItem = document.createElement('li');
-      listItem.textContent = item.textContent;
-      list.appendChild(listItem);
-    });
-    column1Content.push(list);
-  }
+    // Extract image from the first child div
+    const imgElement = child.querySelector(':scope > div:nth-child(1) img');
+    const image = imgElement || null;
 
-  if (button) {
-    const buttonElement = document.createElement('a');
-    buttonElement.href = button.href;
-    buttonElement.textContent = button.textContent;
-    buttonElement.className = button.className;
-    column1Content.push(buttonElement);
-  }
+    // Handle elements with 'src' attributes that are not images
+    const srcElement = child.querySelector(':scope > div:nth-child(1)');
+    if (srcElement && srcElement.tagName !== 'IMG' && srcElement.hasAttribute('src')) {
+      const link = document.createElement('a');
+      link.href = srcElement.getAttribute('src');
+      link.textContent = srcElement.getAttribute('src');
+      return [link, textContent];
+    }
 
-  // Extract content for the second column (image)
-  const column2Content = [];
-  const imageElement = element.querySelector('.nav-brand picture img');
-  if (imageElement) {
-    const img = document.createElement('img');
-    img.src = imageElement.src;
-    img.alt = imageElement.alt;
-    column2Content.push(img);
-  }
+    // Return image and text content as separate cells in the row
+    return [image, textContent];
+  });
 
-  // Create rows for the table
-  const rows = [
+  // Construct the table cells array
+  const cells = [
     headerRow,
-    [column1Content, column2Content],
+    ...rows
   ];
 
-  // Create the block table
-  const block = WebImporter.DOMUtils.createTable(rows, document);
+  // Generate the block table using WebImporter.DOMUtils.createTable()
+  const blockTable = WebImporter.DOMUtils.createTable(cells, document);
 
-  // Replace the original element with the block
-  element.replaceWith(block);
+  // Replace the original element with the new block table
+  element.replaceWith(blockTable);
 }

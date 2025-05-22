@@ -1,21 +1,32 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
     const headerRow = ['Cards (cards7)'];
-    const rows = [headerRow];
-
-    const cardElements = element.querySelectorAll(':scope > div > div');
-
-    cardElements.forEach((card) => {
-        const imageContainer = card.querySelector(':scope > div:first-child picture img');
-        const textContainer = card.querySelector(':scope > div:last-child');
-
+    
+    const rows = Array.from(element.querySelectorAll(':scope > div')).map((card) => {
+        // Extract the image element
+        const imageContainer = card.querySelector(':scope > div:first-child picture');
         const image = imageContainer ? imageContainer : null;
-        const text = textContainer ? textContainer : null;
 
-        const row = [image, text];
-        rows.push(row);
+        // Extract text content
+        const textContainer = card.querySelector(':scope > div:last-child');
+        const title = textContainer.querySelector('strong');
+        const description = textContainer.querySelector('br') ? textContainer.querySelector('br').nextSibling.textContent.trim() : '';
+        const links = Array.from(textContainer.querySelectorAll('a')).map((link) => link);
+
+        // Combine text components
+        const textContent = [
+            title,
+            description,
+            ...links
+        ].filter(Boolean);
+
+        return [image, textContent];
     });
 
-    const table = WebImporter.DOMUtils.createTable(rows, document);
+    // Construct table
+    const tableData = [headerRow, ...rows];
+    const table = WebImporter.DOMUtils.createTable(tableData, document);
+
+    // Replace the original element with the table
     element.replaceWith(table);
 }

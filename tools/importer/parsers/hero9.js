@@ -1,26 +1,54 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  const hr = document.createElement('hr');
+  const headerRow = ['Hero (hero9)'];
 
-  // Extract data from the Hero block
-  const heroBlock = element.querySelector('.hero-wrapper');
-  if (!heroBlock) return; // Handle edge case where hero block is missing
+  const rows = [];
 
-  const imageElement = heroBlock.querySelector('img');
-  const headingElement = heroBlock.querySelector('h1');
+  // Iterate over each carousel item
+  element.querySelectorAll(':scope > div').forEach((carouselItem) => {
+    const imageContainer = carouselItem.querySelector('.carousel-image picture');
+    const textContainer = carouselItem.querySelector('.carousel-text');
 
-  // Prepare cells for the Hero block table
-  const heroCells = [
-    ['Hero'], // Header row matches example
-    [
-      imageElement ? imageElement.cloneNode(true) : '', // Dynamically extract image
-      headingElement ? headingElement.cloneNode(true) : '' // Dynamically extract heading
-    ]
-  ];
+    const image = imageContainer.querySelector('img');
+    const heading = textContainer.querySelector('h1, h2');
+    const subheading = textContainer.querySelector('p:not(.button-container)');
+    const description = textContainer.querySelectorAll('p:not(.button-container)');
+    const buttonContainer = textContainer.querySelector('.button-container a');
 
-  // Create table using WebImporter.DOMUtils.createTable
-  const heroTable = WebImporter.DOMUtils.createTable(heroCells, document);
+    const cellContent = [];
 
-  // Replace the original element with the new structured block
-  element.replaceWith(hr, heroTable);
+    if (image) {
+      cellContent.push(image);
+    }
+
+    if (heading) {
+      const headingClone = document.createElement(heading.tagName);
+      headingClone.innerHTML = heading.innerHTML;
+      cellContent.push(headingClone);
+    }
+
+    if (description && description.length > 0) {
+      description.forEach((desc) => {
+        const descClone = document.createElement('p');
+        descClone.innerHTML = desc.innerHTML;
+        cellContent.push(descClone);
+      });
+    }
+
+    if (buttonContainer) {
+      const buttonClone = document.createElement('a');
+      buttonClone.href = buttonContainer.href;
+      buttonClone.title = buttonContainer.title;
+      buttonClone.className = buttonContainer.className;
+      buttonClone.innerHTML = buttonContainer.innerHTML;
+      cellContent.push(buttonClone);
+    }
+
+    rows.push([cellContent]);
+  });
+
+  const table = WebImporter.DOMUtils.createTable([headerRow, ...rows], document);
+
+  // Replace the original element with the table
+  element.replaceWith(table);
 }

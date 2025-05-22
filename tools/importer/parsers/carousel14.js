@@ -1,22 +1,31 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Extract all unique image elements within the carousel
-  const images = Array.from(element.querySelectorAll('picture img'));
-  const uniqueImages = Array.from(new Set(images.map(img => img.src))).map(src => 
-    images.find(img => img.src === src)
-  );
+  // Define the header row
+  const headerRow = ['Carousel (carousel14)'];
 
-  const rows = uniqueImages.map((img) => {
-    const imageElement = document.createElement('img');
-    imageElement.src = img.src;
-    imageElement.alt = img.alt;
-    return [imageElement];
-  });
+  // Extract rows dynamically from the element
+  const rows = Array.from(element.querySelectorAll(':scope > div > div'))
+    .filter((child) => child.querySelector('picture')) // Only include rows with images
+    .map((child) => {
+      // Dynamically extract the image element
+      const imageElement = child.querySelector('picture');
+      
+      // Dynamically extract the content element and ensure semantic meaning
+      const contentElement = child.querySelector('div:nth-child(2)');
+      const textCell = contentElement ? Array.from(contentElement.childNodes) : []; // Collect all text content
 
-  const headerRow = ['Carousel'];
-  const cells = [headerRow, ...rows];
+      // Handle edge cases for empty or missing data
+      const imageCell = imageElement || document.createElement('div'); // Default to empty div if no image
 
-  const table = WebImporter.DOMUtils.createTable(cells, document);
+      return [imageCell, textCell];
+    });
 
-  element.replaceWith(table);
+  // Construct table data
+  const tableData = [headerRow, ...rows];
+
+  // Create the block table dynamically
+  const blockTable = WebImporter.DOMUtils.createTable(tableData, document);
+
+  // Replace the original element with the new block table
+  element.replaceWith(blockTable);
 }

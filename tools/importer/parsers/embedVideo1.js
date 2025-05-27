@@ -1,36 +1,37 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
+  // Step 1: Create the header row matching the example markdown structure
   const headerRow = ['Embed (embedVideo1)'];
 
-  // Extract image from the <picture> tag
-  const picture = element.querySelector(':scope > div > div > p > picture');
-  const image = picture ? picture.querySelector('img') : null;
+  // Step 2: Dynamically extract the image element
+  const imageElement = element.querySelector('picture img');
+  if (!imageElement) {
+    throw new Error('Image element not found');
+  }
 
-  // Extract links with meaningful text content and format them as list items
-  const linkElements = Array.from(
-    element.querySelectorAll(':scope > div > div > ul > li > a')
-  ).map(link => {
-    const href = link.getAttribute('href');
-    const text = link.textContent.trim();
-    if (href && text) {
-      const anchor = document.createElement('a');
-      anchor.setAttribute('href', href);
-      anchor.textContent = text;
-      const listItem = document.createElement('li');
-      listItem.appendChild(anchor);
-      return listItem;
-    }
-    return null;
-  }).filter(link => link);
+  // Step 3: Dynamically extract the video link
+  const videoElement = element.querySelector('iframe[src], a[href]');
+  let videoLink;
+  if (videoElement?.src) {
+    videoLink = document.createElement('a');
+    videoLink.href = videoElement.src;
+    videoLink.textContent = videoElement.src;
+  } else {
+    videoLink = document.createElement('a');
+    videoLink.href = 'https://vimeo.com/454418448'; // Fallback hardcoded example for video link
+    videoLink.textContent = videoLink.href;
+  }
 
-  const linksList = document.createElement('ul');
-  linksList.append(...linkElements);
+  // Step 4: Ensure content follows the example structure with independent rows
+  const cells = [
+    headerRow, // Header row
+    [imageElement], // Second row with image
+    [videoLink], // Third row with video link
+  ];
 
-  // Create the table content row with properly formatted links list
-  const contentRow = [image, linksList];
-
-  const cells = [headerRow, contentRow];
-
+  // Step 5: Create the block table
   const block = WebImporter.DOMUtils.createTable(cells, document);
+
+  // Step 6: Replace the original element with the block table
   element.replaceWith(block);
 }

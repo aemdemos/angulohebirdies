@@ -1,21 +1,28 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Extract the immediate children of the block
-  const children = element.querySelectorAll(':scope > div > div > div > div');
-
-  // Extract relevant elements dynamically
-  const picture = children[0].querySelector('picture');
-  const heading = children[0].querySelector('h1');
-
-  // Ensure all dynamically extracted content is properly included in the table
+  // Define the header row for the table
   const headerRow = ['Hero (hero2)'];
-  const contentRow = [
-    [picture, heading], // Combine both picture and heading within the same cell
+
+  // Extract content from the element
+  const picture = element.querySelector('picture');
+  const heading = element.querySelector('h1');
+
+  // Handle edge cases for missing picture or heading
+  const parsedPicture = picture || document.createElement('div');
+  const parsedHeading = heading || document.createElement('div');
+
+  // Combine picture and heading into a single cell
+  const combinedCell = [parsedPicture, parsedHeading];
+
+  // Create the cells array for the table
+  const cells = [
+    headerRow,
+    [combinedCell] // Ensure only one cell in the content row
   ];
 
-  // Create the table
-  const blockTable = WebImporter.DOMUtils.createTable([headerRow, contentRow], document);
+  // Create the block table using WebImporter utility
+  const block = WebImporter.DOMUtils.createTable(cells, document);
 
-  // Replace the original element with the new block table
-  element.replaceWith(blockTable);
+  // Replace the original element with the block
+  element.replaceWith(block);
 }

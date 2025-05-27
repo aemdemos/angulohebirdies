@@ -1,31 +1,52 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
+  // Create header row matching the example
   const headerRow = ['Columns (columns3)'];
 
-  // Extract logo image
-  const logoImage = element.querySelector('.nav-brand img');
+  // Initialize cells array
+  const cells = [headerRow];
 
-  // Extract navigation links
-  const navLinks = Array.from(element.querySelectorAll('.nav-sections li a')).map(link => link.cloneNode(true));
+  // Extract content dynamically from the element
+  const children = Array.from(element.querySelectorAll(':scope > div'));
 
-  // Extract donate button
-  const donateButton = element.querySelector('.nav-tools .button-container a');
+  children.forEach((child) => {
+    const row = [];
 
-  // Create rows for the table
-  const contentRow1 = [logoImage, navLinks];
-  const contentRow2 = [
-    'Donate',
-    donateButton ? [donateButton.cloneNode(true)] : 'No Donate Button'
-  ];
+    // Handle images
+    const image = child.querySelector('img');
+    if (image) {
+      row.push(image);
+    }
 
-  const cells = [
-    headerRow,
-    contentRow1,
-    contentRow2
-  ];
+    // Handle links
+    const link = child.querySelector('a');
+    if (link) {
+      const anchorElement = document.createElement('a');
+      anchorElement.href = link.href;
+      anchorElement.textContent = link.textContent.trim() || 'Link'; // Dynamically reflect actual text from source HTML
+      row.push(anchorElement);
+    }
 
-  const blockTable = WebImporter.DOMUtils.createTable(cells, document);
+    // Handle lists (extract individual list items and preserve structure)
+    const list = child.querySelector('ul');
+    if (list) {
+      const listItems = Array.from(list.querySelectorAll('li')).map((li) => {
+        const listItemElement = document.createElement('p');
+        listItemElement.textContent = li.textContent.trim();
+        return listItemElement;
+      });
+      row.push(listItems); // Add list items as structured elements in the row
+    }
 
-  // Replace the original element with the block table
-  element.replaceWith(blockTable);
+    // Add the row to the cells
+    if (row.length > 0) {
+      cells.push(row);
+    }
+  });
+
+  // Create table using WebImporter.DOMUtils.createTable
+  const table = WebImporter.DOMUtils.createTable(cells, document);
+
+  // Replace the original element with the new table
+  element.replaceWith(table);
 }

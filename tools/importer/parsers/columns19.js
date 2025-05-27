@@ -1,47 +1,38 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Define header row to match example structure
+  // Header row for the block table
   const headerRow = ['Columns (columns19)'];
 
-  // Extract immediate children of the columns block
-  const columns = Array.from(element.querySelectorAll(':scope > div > div'));
+  // Extract the child elements directly related to the content
+  const childElements = element.querySelectorAll(':scope > div, :scope > p, :scope > ul, :scope > h2, :scope > h3');
 
-  const rows = columns.map((col) => {
-    const components = [];
+  // Create rows for the table based on extracted content
+  const rows = [headerRow];
 
-    // Extract heading (if it exists)
-    const heading = col.querySelector('h2');
-    if (heading) {
-      components.push([heading]);
+  childElements.forEach((child) => {
+    const cellContent = [];
+
+    // Add text or HTML content to the cell
+    if (child.tagName === 'P' || child.tagName === 'H2' || child.tagName === 'H3') {
+      cellContent.push(child);
+    } else if (child.tagName === 'UL') {
+      cellContent.push(child);
+    } else if (child.tagName === 'DIV') {
+      const images = child.querySelectorAll('img');
+      images.forEach((img) => {
+        cellContent.push(img);
+      });
     }
 
-    // Extract paragraph text (if any)
-    const paragraphs = col.querySelectorAll('p');
-    paragraphs.forEach((p) => components.push([p]));
-
-    // Extract images
-    const images = col.querySelectorAll('img');
-    images.forEach((img) => components.push([img]));
-
-    // Extract other elements with 'src' attribute converted to links
-    const srcElements = col.querySelectorAll('[src]');
-    srcElements.forEach((srcElement) => {
-      if (srcElement.tagName !== 'IMG') {
-        const link = document.createElement('a');
-        link.href = srcElement.src;
-        link.textContent = srcElement.src;
-        components.push([link]);
-      }
-    });
-
-    // Filter out empty elements or redundant nodes
-    const filteredComponents = components.filter((component) => component[0]?.textContent || component[0]?.tagName === 'IMG');
-
-    return filteredComponents;
+    // Add the collected cell content as a new row
+    if (cellContent.length > 0) {
+      rows.push([cellContent]);
+    }
   });
 
-  const cells = [headerRow, ...rows.flat()];
+  // Create the block table
+  const block = WebImporter.DOMUtils.createTable(rows, document);
 
-  const table = WebImporter.DOMUtils.createTable(cells, document);
-  element.replaceWith(table);
+  // Replace the original element with the newly created block table
+  element.replaceWith(block);
 }

@@ -1,44 +1,29 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  const createTable = WebImporter.DOMUtils.createTable;
+  // Define the header row for the block table
+  const headerRow = ['Embed (embedVideo6)'];
 
-  // Create the header row
-  const headerRow = ['Embed'];
+  // Extract the image element from the provided HTML
+  const imageElement = element.querySelector('picture img');
 
-  // Extract image from the footer
-  const image = element.querySelector('img');
-  const imageElement = image ? document.createElement('img') : null;
-  if (imageElement) {
-    imageElement.src = image.src;
-    imageElement.alt = image.alt;
+  // Extract the URL for embedding from the provided HTML
+  const linkElement = element.querySelector(':scope > div > div > ul > li a[href]');
+  const embedLink = document.createElement('a');
+
+  if (linkElement) {
+    embedLink.href = linkElement.getAttribute('href');
+    embedLink.textContent = linkElement.getAttribute('href');
   }
 
-  // Extract links from the footer
-  const links = Array.from(element.querySelectorAll('a')).map((link) => {
-    const anchor = document.createElement('a');
-    anchor.href = link.href;
-    anchor.textContent = link.textContent;
-    return anchor;
-  });
-
-  // Separate links into individual rows
-  const linksRows = links.map((link) => [link]);
-
-  // Extract email and copyright text
-  const email = element.querySelector('a[href^="mailto:"]');
-  const copyrightText = element.querySelector('p')?.textContent.trim();
-
-  // Assemble the table structure
+  // Prepare table cell data
   const cells = [
     headerRow,
-    [imageElement || ''],
-    ...linksRows,
-    [email ? email.textContent : '', copyrightText || ''],
+    [[imageElement, embedLink]], // Combine image and link into a single cell
   ];
 
-  // Create the table
-  const table = createTable(cells, document);
+  // Create the table block
+  const block = WebImporter.DOMUtils.createTable(cells, document);
 
-  // Replace the original element with the new table
-  element.replaceWith(table);
+  // Replace the original element with the block table
+  element.replaceWith(block);
 }

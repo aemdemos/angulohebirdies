@@ -11,18 +11,24 @@
  */
 /* global WebImporter */
 /* eslint-disable no-console */
-import hero9Parser from './parsers/hero9.js';
-import cards7Parser from './parsers/cards7.js';
-import cardsNoImages8Parser from './parsers/cardsNoImages8.js';
-import cards12Parser from './parsers/cards12.js';
-import hero4Parser from './parsers/hero4.js';
+import hero7Parser from './parsers/hero7.js';
+import embedVideo10Parser from './parsers/embedVideo10.js';
 import hero2Parser from './parsers/hero2.js';
-import columns3Parser from './parsers/columns3.js';
-import columns11Parser from './parsers/columns11.js';
+import embedVideo8Parser from './parsers/embedVideo8.js';
+import cards5Parser from './parsers/cards5.js';
+import columns16Parser from './parsers/columns16.js';
+import columns17Parser from './parsers/columns17.js';
 import embedVideo1Parser from './parsers/embedVideo1.js';
-import columns10Parser from './parsers/columns10.js';
-import columns5Parser from './parsers/columns5.js';
-import columns6Parser from './parsers/columns6.js';
+import cards18Parser from './parsers/cards18.js';
+import carousel12Parser from './parsers/carousel12.js';
+import embedVideo6Parser from './parsers/embedVideo6.js';
+import embedVideo11Parser from './parsers/embedVideo11.js';
+import embedVideo15Parser from './parsers/embedVideo15.js';
+import carousel13Parser from './parsers/carousel13.js';
+import columns3Parser from './parsers/columns3.js';
+import columns4Parser from './parsers/columns4.js';
+import columns14Parser from './parsers/columns14.js';
+import columns19Parser from './parsers/columns19.js';
 import headerParser from './parsers/header.js';
 import metadataParser from './parsers/metadata.js';
 import cleanupTransformer from './transformers/cleanup.js';
@@ -38,18 +44,24 @@ import {
 
 const parsers = {
   metadata: metadataParser,
-  hero9: hero9Parser,
-  cards7: cards7Parser,
-  cardsNoImages8: cardsNoImages8Parser,
-  cards12: cards12Parser,
-  hero4: hero4Parser,
+  hero7: hero7Parser,
+  embedVideo10: embedVideo10Parser,
   hero2: hero2Parser,
-  columns3: columns3Parser,
-  columns11: columns11Parser,
+  embedVideo8: embedVideo8Parser,
+  cards5: cards5Parser,
+  columns16: columns16Parser,
+  columns17: columns17Parser,
   embedVideo1: embedVideo1Parser,
-  columns10: columns10Parser,
-  columns5: columns5Parser,
-  columns6: columns6Parser,
+  cards18: cards18Parser,
+  carousel12: carousel12Parser,
+  embedVideo6: embedVideo6Parser,
+  embedVideo11: embedVideo11Parser,
+  embedVideo15: embedVideo15Parser,
+  carousel13: carousel13Parser,
+  columns3: columns3Parser,
+  columns4: columns4Parser,
+  columns14: columns14Parser,
+  columns19: columns19Parser,
 };
 
 const transformers = {

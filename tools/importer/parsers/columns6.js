@@ -1,36 +1,35 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  // Extract the relevant content from the input element dynamically
-  const columnsWrapper = element.querySelector(':scope > .columns-wrapper');
-  const columnsBlock = columnsWrapper?.querySelector(':scope > .columns');
-  const immediateChildren = columnsBlock?.querySelectorAll(':scope > div');
+  const headerRow = ['Columns (columns6)'];
 
-  if (!columnsBlock || !immediateChildren || immediateChildren.length < 2) {
-    // Handle edge case: Missing required structure
-    console.warn('Invalid structure detected');
-    return null;
-  }
+  // Fetching the immediate children of the block
+  const children = [...element.querySelectorAll(':scope > div > div')];
 
-  // Extract headers and content components dynamically
-  const headerElement = immediateChildren[0].querySelector(':scope > div > h2');
-  const textElement = immediateChildren[0].querySelector(':scope > div > p');
-  const pictureElement = immediateChildren[1]?.querySelector(':scope > picture img');
+  // Create cells for the second row with separate columns for content
+  const cells = children.map((child) => {
+    const textCell = [];
 
-  // Edge case handling
-  const headerRow = ['Columns (columns6)']; // Exact header row match
+    // Extract heading, paragraph, and list content
+    const heading = child.querySelector('h2, h3, h4, h5, h6');
+    if (heading) textCell.push(heading);
 
-  // Content rows with dynamic extraction
-  const contentRow1 = [headerElement, textElement].filter(Boolean); // Filter out empty elements
-  const contentRow2 = [pictureElement].filter(Boolean);
+    const paragraph = child.querySelector('p');
+    if (paragraph) textCell.push(paragraph);
 
-  // Create the block table
-  const blockTable = WebImporter.DOMUtils.createTable([
-    headerRow,
-    contentRow1,
-    contentRow2,
-  ], document);
+    const list = child.querySelector('ul, ol');
+    if (list) textCell.push(list);
 
-  // Replace the original element with the new block table
+    const links = [...child.querySelectorAll('a')];
+    if (links.length) textCell.push(...links);
+
+    const imageCell = child.querySelector('picture img');
+
+    // Return separate columns for text and image
+    return [textCell.length > 0 ? textCell : '', imageCell || ''];
+  });
+
+  const tableBlockCells = [headerRow, ...cells];
+  const blockTable = WebImporter.DOMUtils.createTable(tableBlockCells, document);
+
   element.replaceWith(blockTable);
-  return blockTable;
 }

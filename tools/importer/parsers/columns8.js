@@ -1,46 +1,42 @@
 /* global WebImporter */
 export default function parse(element, { document }) {
-  const columns = [];
+    // Create the header row
+    const headerRow = ['Columns (columns8)'];
 
-  // Extract all column items
-  const columnItems = element.querySelectorAll('.columns.block.columns-2-cols > div');
+    // Extract relevant content dynamically
+    const columns = [];
 
-  if (!columnItems || columnItems.length === 0) {
-    console.warn('No column items found');
-    return;
-  }
+    // Get top-level children of the element
+    const children = element.querySelectorAll(':scope > div');
 
-  columnItems.forEach((columnItem) => {
-    // Extract image if available
-    const pictureElement = columnItem.querySelector('picture');
-    const image = pictureElement?.querySelector('img');
-    const imageElement = image ? document.createElement('img') : null;
+    children.forEach((child) => {
+        const content = [];
 
-    if (imageElement) {
-      imageElement.src = image.src;
-      imageElement.alt = image.alt;
-    }
+        // Extract images
+        const images = child.querySelectorAll('img');
+        images.forEach((img) => content.push(img));
 
-    // Extract text content
-    const textElement = columnItem.querySelector('div:last-child');
-    const strongElement = textElement?.querySelector('strong');
-    let description = '';
+        // Extract paragraphs or other inline text
+        const paragraphs = child.querySelectorAll('p');
+        paragraphs.forEach((p) => content.push(p));
 
-    if (strongElement) {
-      description = `<strong>${strongElement.textContent}</strong><br>`;
-      const remainingText = textElement.innerHTML.replace(strongElement.outerHTML, '').trim();
-      description += remainingText;
-    } else {
-      description = textElement ? textElement.innerHTML.trim() : '';
-    }
+        // Extract links (if applicable)
+        const links = child.querySelectorAll('a[href]');
+        links.forEach((link) => content.push(link));
 
-    // Push image and description into columns
-    columns.push([imageElement, description]);
-  });
+        // Add content to columns
+        columns.push(content);
+    });
 
-  const cells = [['Columns'], ...columns];
+    // Organize into table rows
+    const cells = [
+        headerRow,
+        ...columns.map((content) => [content])
+    ];
 
-  const table = WebImporter.DOMUtils.createTable(cells, document);
+    // Create the block table
+    const block = WebImporter.DOMUtils.createTable(cells, document);
 
-  element.replaceWith(table);
+    // Replace original element with the block
+    element.replaceWith(block);
 }
